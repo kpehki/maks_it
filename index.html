@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,23 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
+            overflow: hidden; 
+            background: #000; 
+            color: white;
         }
         #timer {
             font-size: 2em;
-            margin-top: 50px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            user-select: none;
+            pointer-events: none;
         }
     </style>
 </head>
@@ -20,37 +33,73 @@
     <div id="timer"></div>
 
     <script>
-        // Функция для получения времени с 1 марта
         function getTimeSinceMarchFirst() {
             var marchFirst = new Date("2024-03-01T00:00:00");
             var now = new Date();
             var difference = now.getTime() - marchFirst.getTime();
 
-            // Перевод разницы в дни, часы, минуты и секунды
             var days = Math.floor(difference / (1000 * 60 * 60 * 24));
             var hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             var minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
             var seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-            return {
-                days: days,
-                hours: hours,
-                minutes: minutes,
-                seconds: seconds
-            };
+            return { days, hours, minutes, seconds };
         }
 
-        // Функция для обновления таймера
+
         function updateTimer() {
-            var timeSinceMarchFirst = getTimeSinceMarchFirst();
-            document.getElementById("timer").innerHTML = timeSinceMarchFirst.days + " дней, " + timeSinceMarchFirst.hours + " часов, " + timeSinceMarchFirst.minutes + " минут, " + timeSinceMarchFirst.seconds + " секунд";
+            var t = getTimeSinceMarchFirst();
+            document.getElementById("timer").innerHTML =
+                t.days + " дней, " + t.hours + " часов, " +
+                t.minutes + " минут, " + t.seconds + " секунд";
         }
 
-        // Обновление таймера каждую секунду
         setInterval(updateTimer, 1000);
-
-        // Инициализация таймера при загрузке страницы
         updateTimer();
+
+
+        let faces = [];
+
+        function createFaces() {
+            let t = getTimeSinceMarchFirst();
+            let count = Math.floor(t.days / 100);
+
+            for (let i = faces.length; i < count; i++) {
+                let img = document.createElement("img");
+                img.src = "max.jpg"; 
+                img.classList.add("face");
+                document.body.appendChild(img);
+
+                let face = {
+                    el: img,
+                    x: Math.random() * (window.innerWidth - 100),
+                    y: Math.random() * (window.innerHeight - 100),
+                    dx: (Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 2),
+                    dy: (Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 2),
+                    size: 100
+                };
+                faces.push(face);
+            }
+        }
+
+        function animateFaces() {
+            faces.forEach(face => {
+                face.x += face.dx;
+                face.y += face.dy;
+
+                if (face.x <= 0 || face.x + face.size >= window.innerWidth) face.dx *= -1;
+                if (face.y <= 0 || face.y + face.size >= window.innerHeight) face.dy *= -1;
+
+                face.el.style.left = face.x + "px";
+                face.el.style.top = face.y + "px";
+            });
+            requestAnimationFrame(animateFaces);
+        }
+
+        createFaces();
+        animateFaces();
+
+        setInterval(createFaces, 60000);
     </script>
 </body>
 </html>
