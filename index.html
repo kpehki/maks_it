@@ -29,7 +29,7 @@
     </style>
 </head>
 <body>
-    <h1>МАКС УЧИТ ЛИНЬ УЖЕ</h1>
+    <h1>МАКС УЧИТ ЛИНУКС УЖЕ</h1>
     <div id="timer"></div>
 
     <script>
@@ -59,6 +59,41 @@
         let faces = [];
         const MAX_FACES = 50;
 
+        let linuxCommands = [
+            "ls -la", "cd /var/log", "tail -f /var/log/syslog", "sudo reboot",
+            "df -h", "du -sh *", "ps aux", "kill -9 1234", "top", "htop",
+            "cat /etc/passwd", "grep error file.log", "journalctl -xe",
+            "chmod +x script.sh", "systemctl restart nginx", "ping 8.8.8.8",
+            "curl ifconfig.me", "whoami", "uptime", "free -m", "ip addr",
+            "netstat -tulpn", "ss -lntp", "docker ps", "docker logs -f",
+            "kubectl get pods", "kubectl describe pod my-pod",
+            "nano /etc/hosts", "vim ~/.bashrc", "echo $PATH",
+            "export VAR=test", "uname -a", "dmesg | tail", "lsblk", "fdisk -l",
+            "mount | column -t", "rsync -av src/ dst/", "scp file user@host:/tmp",
+            "ssh user@host", "tar -czvf backup.tar.gz /home/user",
+            "find / -name '*.log'", "locate passwd", "alias ll='ls -l'",
+            "history | grep ssh", "awk '{print $1}' file.txt",
+            "sed -i 's/foo/bar/g' file.txt", "wc -l file.txt",
+            "cut -d: -f1 /etc/passwd", "head -n 20 file.log", "tail -n 50 file.log"
+        ];
+
+        let commandQueue = shuffleArray([...linuxCommands]);
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function getNextCommand() {
+            if (commandQueue.length === 0) {
+                commandQueue = shuffleArray([...linuxCommands]);
+            }
+            return commandQueue.pop();
+        }
+
         function createFaces() {
             let t = getTimeSinceMarchFirst();
             let count = Math.floor(t.days / 100);
@@ -70,16 +105,46 @@
                 img.style.position = "absolute";
                 document.body.appendChild(img);
 
+                let angle = Math.random() * 2 * Math.PI;
+                let speed = 2 + Math.random() * 2;
+
                 let face = {
                     el: img,
                     x: Math.random() * (window.innerWidth - 100),
                     y: Math.random() * (window.innerHeight - 100),
-                    dx: (Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 2),
-                    dy: (Math.random() < 0.5 ? -1 : 1) * (2 + Math.random() * 2),
+                    dx: Math.cos(angle) * speed,
+                    dy: Math.sin(angle) * speed,
                     size: 100
                 };
                 faces.push(face);
             }
+        }
+
+        function showCommandPopup(x, y) {
+            let div = document.createElement("div");
+            div.textContent = getNextCommand();
+            div.style.position = "absolute";
+            div.style.left = x + "px";
+            div.style.top = y + "px";
+            div.style.color = "lime";
+            div.style.fontFamily = "monospace";
+            div.style.fontSize = "16px";
+            div.style.background = "rgba(0, 0, 0, 0.6)";
+            div.style.padding = "4px 6px";
+            div.style.borderRadius = "6px";
+            div.style.opacity = "1";
+            div.style.transition = "opacity 1s, transform 1s";
+            div.style.transform = "scale(1)";
+            div.style.zIndex = "20";
+
+            document.body.appendChild(div);
+
+            setTimeout(() => {
+                div.style.opacity = "0";
+                div.style.transform = "scale(1.5)";
+            }, 50);
+
+            setTimeout(() => div.remove(), 1100);
         }
 
         function checkCollisions() {
@@ -93,6 +158,10 @@
                     let distance = Math.sqrt(dx * dx + dy * dy);
 
                     if (distance < a.size) {
+                        let collisionX = (a.x + b.x) / 2;
+                        let collisionY = (a.y + b.y) / 2;
+                        showCommandPopup(collisionX, collisionY);
+
                         let tempDx = a.dx;
                         let tempDy = a.dy;
                         a.dx = b.dx;
