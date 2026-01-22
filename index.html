@@ -74,7 +74,7 @@
             "find / -name '*.log'", "locate passwd", "alias ll='ls -l'",
             "history | grep ssh", "awk '{print $1}' file.txt",
             "sed -i 's/foo/bar/g' file.txt", "wc -l file.txt",
-            "cut -d: -f1 /etc/passwd", "head -n 20 file.log", "tail -n 50 file.log"
+            "cut -d: -f1 /etc/passwd", "head -n 20 file.log", "tail -n 50 file.log", "файв тыщ", "айпишник"
         ];
 
         let commandQueue = shuffleArray([...linuxCommands]);
@@ -144,7 +144,7 @@
                 div.style.transform = "scale(1.5)";
             }, 50);
 
-            setTimeout(() => div.remove(), 1100);
+            setTimeout(() => div.remove(), 3000);
         }
 
         function checkCollisions() {
